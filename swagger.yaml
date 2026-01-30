@@ -4,7 +4,10 @@ info:
   description: API for managing brainrot entities
   version: 1.0.0
 servers:
-  - url: /api/v1
+  - url: http://localhost:4001/api/v1
+    description: Local development server
+#  - url: https://brainrot-service:4001/api/v1
+#    description: Production server
 paths:
   /brainrot:
     get:
@@ -23,12 +26,12 @@ paths:
         '500':
           description: Internal server error
     post:
-      summary: Create a new brainrot (Admin only)
+      summary: Create a new brainrot (Sigma only)
       tags:
         - Brainrot
-        - Admin
+        - Sigma
       security:
-        - AdminAuth: []
+        - SigmaAuth: []
       requestBody:
         required: true
         content:
@@ -47,7 +50,7 @@ paths:
         '401':
           description: Unauthorized
         '403':
-          description: Forbidden - Admin access required
+          description: Forbidden - Sigma access required
         '500':
           description: Internal server error
   /brainrot/{id}:
@@ -74,12 +77,12 @@ paths:
         '500':
           description: Internal server error
     put:
-      summary: Update a brainrot (Admin only)
+      summary: Update a brainrot (Sigma only)
       tags:
         - Brainrot
-        - Admin
+        - Sigma
       security:
-        - AdminAuth: []
+        - SigmaAuth: []
       parameters:
         - name: id
           in: path
@@ -105,18 +108,18 @@ paths:
         '401':
           description: Unauthorized
         '403':
-          description: Forbidden - Admin access required
+          description: Forbidden - Sigma access required
         '404':
           description: Brainrot not found
         '500':
           description: Internal server error
     delete:
-      summary: Delete a brainrot (Admin only)
+      summary: Delete a brainrot (Sigma only)
       tags:
         - Brainrot
-        - Admin
+        - Sigma
       security:
-        - AdminAuth: []
+        - SigmaAuth: []
       parameters:
         - name: id
           in: path
@@ -130,7 +133,7 @@ paths:
         '401':
           description: Unauthorized
         '403':
-          description: Forbidden - Admin access required
+          description: Forbidden - Sigma access required
         '404':
           description: Brainrot not found
         '500':
@@ -184,8 +187,8 @@ components:
         - baseHP
         - baseAttack
   securitySchemes:
-    AdminAuth:
+    SigmaAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      description: Admin JWT token required for admin operations
+      description: Sigma JWT token required for sigma operations
