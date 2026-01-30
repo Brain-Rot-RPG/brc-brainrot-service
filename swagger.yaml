@@ -149,9 +149,6 @@ components:
         name:
           type: string
           description: Name of the brainrot
-        image:
-          type: string
-          description: Image ID from the image service
         baseHP:
           type: integer
           description: Base health points
@@ -161,7 +158,6 @@ components:
       required:
         - id
         - name
-        - image
         - baseHP
         - baseAttack
     BrainrotInput:
@@ -170,9 +166,6 @@ components:
         name:
           type: string
           description: Name of the brainrot
-        image:
-          type: string
-          description: Image ID from the image service
         baseHP:
           type: integer
           description: Base health points
@@ -183,7 +176,6 @@ components:
           minimum: 0
       required:
         - name
-        - image
         - baseHP
         - baseAttack
   securitySchemes:

@@ -1,0 +1,19 @@
+meta {
+  name: Create brainrot
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:4001/api/v1/brainrot
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Brainrot Example",
+    "baseHP": 100,
+    "baseAttack": 25
+  }
+}

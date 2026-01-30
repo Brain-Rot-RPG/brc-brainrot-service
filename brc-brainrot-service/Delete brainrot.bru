@@ -1,0 +1,11 @@
+meta {
+  name: Delete brainrot
+  type: http
+  seq: 5
+}
+
+delete {
+  url: http://localhost:4001/api/v1/brainrot/{{brainrotId}}
+  body: none
+  auth: inherit
+}
