@@ -64,7 +64,7 @@ export class PostgresBrainrotRepository implements BrainrotRepository {
     const result = await this.pool.query("DELETE FROM brainrots WHERE id = $1", [
       id,
     ]);
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   private mapRow(row: BrainrotRow): Brainrot {
