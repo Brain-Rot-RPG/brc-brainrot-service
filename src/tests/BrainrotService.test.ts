@@ -48,52 +48,197 @@ class InMemoryBrainrotRepository implements BrainrotRepository {
 }
 
 describe("BrainrotService", () => {
-  it("creates a brainrot", async () => {
-    const repo = new InMemoryBrainrotRepository();
-    const service = new BrainrotService(repo);
+  let repo: InMemoryBrainrotRepository;
+  let service: BrainrotService;
 
-    const created = await service.create({
-      name: "Test",
-      baseHP: 100,
-      baseAttack: 20,
-    });
-
-    expect(created.id).toBeDefined();
-    expect(created.name).toBe("Test");
-    expect(created.baseHP).toBe(100);
-    expect(created.baseAttack).toBe(20);
+  beforeEach(() => {
+    repo = new InMemoryBrainrotRepository();
+    service = new BrainrotService(repo);
   });
 
-  it("updates a brainrot", async () => {
-    const repo = new InMemoryBrainrotRepository();
-    const service = new BrainrotService(repo);
+  describe("create", () => {
+    it("creates a brainrot with all fields", async () => {
+      const created = await service.create({
+        name: "Test",
+        baseHP: 100,
+        baseAttack: 20,
+      });
 
-    const created = await service.create({
-      name: "Test",
-      baseHP: 100,
-      baseAttack: 20,
+      expect(created.id).toBeDefined();
+      expect(created.name).toBe("Test");
+      expect(created.baseHP).toBe(100);
+      expect(created.baseAttack).toBe(20);
+      expect(created.createdAt).toBeDefined();
     });
 
-    const updated = await service.update(created.id, {
-      name: "Updated",
-      baseHP: 150,
-      baseAttack: 30,
+    it("creates multiple brainrots with unique ids", async () => {
+      const first = await service.create({
+        name: "First",
+        baseHP: 100,
+        baseAttack: 20,
+      });
+
+      const second = await service.create({
+        name: "Second",
+        baseHP: 150,
+        baseAttack: 30,
+      });
+
+      expect(first.id).not.toBe(second.id);
     });
 
-    expect(updated).not.toBeNull();
-    expect(updated?.name).toBe("Updated");
+    it("creates brainrot with high stats", async () => {
+      const created = await service.create({
+        name: "Boss",
+        baseHP: 9999,
+        baseAttack: 999,
+      });
+
+      expect(created.baseHP).toBe(9999);
+      expect(created.baseAttack).toBe(999);
+    });
   });
 
-  it("returns null when updating missing brainrot", async () => {
-    const repo = new InMemoryBrainrotRepository();
-    const service = new BrainrotService(repo);
-
-    const updated = await service.update("missing", {
-      name: "Updated",
-      baseHP: 150,
-      baseAttack: 30,
+  describe("getAll", () => {
+    it("returns empty array when no brainrots exist", async () => {
+      const all = await service.getAll();
+      expect(all).toEqual([]);
     });
 
-    expect(updated).toBeNull();
+    it("returns all created brainrots", async () => {
+      await service.create({ name: "First", baseHP: 100, baseAttack: 20 });
+      await service.create({ name: "Second", baseHP: 150, baseAttack: 30 });
+      await service.create({ name: "Third", baseHP: 200, baseAttack: 40 });
+
+      const all = await service.getAll();
+      expect(all).toHaveLength(3);
+      expect(all.map((b) => b.name)).toEqual(["First", "Second", "Third"]);
+    });
+  });
+
+  describe("getById", () => {
+    it("returns brainrot when it exists", async () => {
+      const created = await service.create({
+        name: "Test",
+        baseHP: 100,
+        baseAttack: 20,
+      });
+
+      const found = await service.getById(created.id);
+      expect(found).not.toBeNull();
+      expect(found?.id).toBe(created.id);
+      expect(found?.name).toBe("Test");
+    });
+
+    it("returns null when brainrot does not exist", async () => {
+      const found = await service.getById("non-existent-id");
+      expect(found).toBeNull();
+    });
+  });
+
+  describe("update", () => {
+    it("updates a brainrot successfully", async () => {
+      const created = await service.create({
+        name: "Test",
+        baseHP: 100,
+        baseAttack: 20,
+      });
+
+      const updated = await service.update(created.id, {
+        name: "Updated",
+        baseHP: 150,
+        baseAttack: 30,
+      });
+
+      expect(updated).not.toBeNull();
+      expect(updated?.name).toBe("Updated");
+      expect(updated?.baseHP).toBe(150);
+      expect(updated?.baseAttack).toBe(30);
+    });
+
+    it("updates only specific fields", async () => {
+      const created = await service.create({
+        name: "Test",
+        baseHP: 100,
+        baseAttack: 20,
+      });
+
+      const updated = await service.update(created.id, {
+        name: "Test",
+        baseHP: 200,
+        baseAttack: 20,
+      });
+
+      expect(updated?.baseHP).toBe(200);
+      expect(updated?.name).toBe("Test");
+      expect(updated?.baseAttack).toBe(20);
+    });
+
+    it("returns null when updating missing brainrot", async () => {
+      const updated = await service.update("missing", {
+        name: "Updated",
+        baseHP: 150,
+        baseAttack: 30,
+      });
+
+      expect(updated).toBeNull();
+    });
+
+    it("preserves id and createdAt when updating", async () => {
+      const created = await service.create({
+        name: "Test",
+        baseHP: 100,
+        baseAttack: 20,
+      });
+
+      const updated = await service.update(created.id, {
+        name: "Updated",
+        baseHP: 150,
+        baseAttack: 30,
+      });
+
+      expect(updated?.id).toBe(created.id);
+      expect(updated?.createdAt).toEqual(created.createdAt);
+    });
+  });
+
+  describe("delete", () => {
+    it("deletes an existing brainrot", async () => {
+      const created = await service.create({
+        name: "Test",
+        baseHP: 100,
+        baseAttack: 20,
+      });
+
+      const deleted = await service.delete(created.id);
+      expect(deleted).toBe(true);
+
+      const found = await service.getById(created.id);
+      expect(found).toBeNull();
+    });
+
+    it("returns false when deleting non-existent brainrot", async () => {
+      const deleted = await service.delete("non-existent-id");
+      expect(deleted).toBe(false);
+    });
+
+    it("removes brainrot from getAll results", async () => {
+      const first = await service.create({
+        name: "First",
+        baseHP: 100,
+        baseAttack: 20,
+      });
+      const second = await service.create({
+        name: "Second",
+        baseHP: 150,
+        baseAttack: 30,
+      });
+
+      await service.delete(first.id);
+
+      const all = await service.getAll();
+      expect(all).toHaveLength(1);
+      expect(all[0].id).toBe(second.id);
+    });
   });
 });
