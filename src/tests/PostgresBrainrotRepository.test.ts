@@ -1,5 +1,6 @@
 import { Pool } from "pg";
 import { PostgresBrainrotRepository } from "../infrastructure/database/PostgresBrainrotRepository";
+import { BrainrotInput } from "../domain/entities/Brainrot";
 
 // Mock pg Pool
 jest.mock("pg", () => {
@@ -31,6 +32,7 @@ describe("PostgresBrainrotRepository", () => {
           name: "Test1",
           base_hp: 100,
           base_attack: 20,
+          is_boss: false,
           created_at: new Date("2026-01-01"),
         },
         {
@@ -38,6 +40,7 @@ describe("PostgresBrainrotRepository", () => {
           name: "Test2",
           base_hp: 150,
           base_attack: 30,
+          is_boss: true,
           created_at: new Date("2026-01-02"),
         },
       ];
@@ -55,6 +58,7 @@ describe("PostgresBrainrotRepository", () => {
         name: "Test1",
         baseHP: 100,
         baseAttack: 20,
+        isBoss: false,
         createdAt: new Date("2026-01-01"),
       });
     });
@@ -75,6 +79,7 @@ describe("PostgresBrainrotRepository", () => {
         name: "Test",
         base_hp: 100,
         base_attack: 20,
+        is_boss: false,
         created_at: new Date("2026-01-01"),
       };
 
@@ -91,6 +96,7 @@ describe("PostgresBrainrotRepository", () => {
         name: "Test",
         baseHP: 100,
         baseAttack: 20,
+        isBoss: false,
         createdAt: new Date("2026-01-01"),
       });
     });
@@ -111,6 +117,7 @@ describe("PostgresBrainrotRepository", () => {
         name: "New Brainrot",
         base_hp: 100,
         base_attack: 20,
+        is_boss: false,
         created_at: new Date("2026-01-01"),
       };
 
@@ -120,19 +127,22 @@ describe("PostgresBrainrotRepository", () => {
         name: "New Brainrot",
         baseHP: 100,
         baseAttack: 20,
+        isBoss: false,
       });
 
       expect(mockQuery).toHaveBeenCalledWith(
-        "INSERT INTO brainrots (id, name, base_hp, base_attack) VALUES ($1, $2, $3, $4) RETURNING *",
+        "INSERT INTO brainrots (id, name, base_hp, base_attack, is_boss) VALUES ($1, $2, $3, $4, $5) RETURNING *",
         expect.arrayContaining([
           expect.any(String),
           "New Brainrot",
           100,
           20,
+          false,
         ])
       );
       expect(result.name).toBe("New Brainrot");
       expect(result.baseHP).toBe(100);
+      expect(result.isBoss).toBe(false);
     });
   });
 
@@ -143,6 +153,7 @@ describe("PostgresBrainrotRepository", () => {
         name: "Updated",
         base_hp: 200,
         base_attack: 40,
+        is_boss: true,
         created_at: new Date("2026-01-01"),
       };
 
@@ -152,14 +163,16 @@ describe("PostgresBrainrotRepository", () => {
         name: "Updated",
         baseHP: 200,
         baseAttack: 40,
+        isBoss: true,
       });
 
       expect(mockQuery).toHaveBeenCalledWith(
-        "UPDATE brainrots SET name = $2, base_hp = $3, base_attack = $4 WHERE id = $1 RETURNING *",
-        ["uuid-1", "Updated", 200, 40]
+        "UPDATE brainrots SET name = $2, base_hp = $3, base_attack = $4, is_boss = $5 WHERE id = $1 RETURNING *",
+        ["uuid-1", "Updated", 200, 40, true]
       );
       expect(result).not.toBeNull();
       expect(result?.name).toBe("Updated");
+      expect(result?.isBoss).toBe(true);
     });
 
     it("returns null when brainrot not found", async () => {
@@ -169,6 +182,7 @@ describe("PostgresBrainrotRepository", () => {
         name: "Updated",
         baseHP: 200,
         baseAttack: 40,
+        isBoss: false,
       });
 
       expect(result).toBeNull();

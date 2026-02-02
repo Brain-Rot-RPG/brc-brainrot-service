@@ -1,5 +1,5 @@
 import { Pool, QueryResult } from "pg";
-import { Brainrot } from "../../domain/entities/Brainrot";
+import { Brainrot, BrainrotInput } from "../../domain/entities/Brainrot";
 import { BrainrotRepository } from "../../domain/repositories/BrainrotRepository";
 import { v4 as uuidv4 } from "uuid";
 
@@ -8,6 +8,7 @@ interface BrainrotRow {
   name: string;
   base_hp: number;
   base_attack: number;
+  is_boss: boolean;
   created_at: Date;
 }
 
@@ -34,11 +35,12 @@ export class PostgresBrainrotRepository implements BrainrotRepository {
     return this.mapRow(result.rows[0]);
   }
 
-  async create(input: Omit<Brainrot, "id" | "createdAt">): Promise<Brainrot> {
+  async create(input: BrainrotInput): Promise<Brainrot> {
     const id = uuidv4();
+    const isBoss = input.isBoss ?? false;
     const result: QueryResult<BrainrotRow> = await this.pool.query(
-      "INSERT INTO brainrots (id, name, base_hp, base_attack) VALUES ($1, $2, $3, $4) RETURNING *",
-      [id, input.name, input.baseHP, input.baseAttack]
+      "INSERT INTO brainrots (id, name, base_hp, base_attack, is_boss) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+      [id, input.name, input.baseHP, input.baseAttack, isBoss]
     );
 
     return this.mapRow(result.rows[0]);
@@ -46,11 +48,12 @@ export class PostgresBrainrotRepository implements BrainrotRepository {
 
   async update(
     id: string,
-    input: Omit<Brainrot, "id" | "createdAt">
+    input: BrainrotInput
   ): Promise<Brainrot | null> {
+    const isBoss = input.isBoss ?? false;
     const result: QueryResult<BrainrotRow> = await this.pool.query(
-      "UPDATE brainrots SET name = $2, base_hp = $3, base_attack = $4 WHERE id = $1 RETURNING *",
-      [id, input.name, input.baseHP, input.baseAttack]
+      "UPDATE brainrots SET name = $2, base_hp = $3, base_attack = $4, is_boss = $5 WHERE id = $1 RETURNING *",
+      [id, input.name, input.baseHP, input.baseAttack, isBoss]
     );
 
     if (result.rowCount === 0) {
@@ -73,6 +76,7 @@ export class PostgresBrainrotRepository implements BrainrotRepository {
       name: row.name,
       baseHP: row.base_hp,
       baseAttack: row.base_attack,
+      isBoss: row.is_boss,
       createdAt: row.created_at,
     };
   }

@@ -155,11 +155,15 @@ components:
         baseAttack:
           type: integer
           description: Base attack points
+        isBoss:
+          type: boolean
+          description: Whether this brainrot is a boss
       required:
         - id
         - name
         - baseHP
         - baseAttack
+        - isBoss
     BrainrotInput:
       type: object
       properties:
@@ -174,6 +178,10 @@ components:
           type: integer
           description: Base attack points
           minimum: 0
+        isBoss:
+          type: boolean
+          description: Whether this brainrot is a boss
+          default: false
       required:
         - name
         - baseHP

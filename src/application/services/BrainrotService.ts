@@ -1,11 +1,5 @@
-import { Brainrot } from "../../domain/entities/Brainrot";
+import { Brainrot, BrainrotInput } from "../../domain/entities/Brainrot";
 import { BrainrotRepository } from "../../domain/repositories/BrainrotRepository";
-
-export interface BrainrotInput {
-  name: string;
-  baseHP: number;
-  baseAttack: number;
-}
 
 export class BrainrotService {
   constructor(private readonly repository: BrainrotRepository) {}
@@ -19,11 +13,21 @@ export class BrainrotService {
   }
 
   async create(input: BrainrotInput): Promise<Brainrot> {
-    return this.repository.create(input);
+    // Default isBoss to false if not provided
+    const normalizedInput: any = {
+      ...input,
+      isBoss: input.isBoss ?? false,
+    };
+    return this.repository.create(normalizedInput);
   }
 
   async update(id: string, input: BrainrotInput): Promise<Brainrot | null> {
-    return this.repository.update(id, input);
+    // Default isBoss to false if not provided
+    const normalizedInput: any = {
+      ...input,
+      isBoss: input.isBoss ?? false,
+    };
+    return this.repository.update(id, normalizedInput);
   }
 
   async delete(id: string): Promise<boolean> {
