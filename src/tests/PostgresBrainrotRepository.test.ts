@@ -1,6 +1,5 @@
 import { Pool } from "pg";
 import { PostgresBrainrotRepository } from "../infrastructure/database/PostgresBrainrotRepository";
-import { BrainrotInput } from "../domain/entities/Brainrot";
 
 // Mock pg Pool
 jest.mock("pg", () => {
