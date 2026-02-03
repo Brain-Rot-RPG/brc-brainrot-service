@@ -16,7 +16,7 @@ export const createBrainrotRouter = (service: BrainrotService): Router => {
 
   router.get("/brainrot/:id", async (req: Request, res: Response) => {
     try {
-      const { id } = req.params;
+      const id = parseInt(req.params.id, 10);
       const result = await service.getById(id);
 
       if (!result) {
@@ -50,7 +50,7 @@ export const createBrainrotRouter = (service: BrainrotService): Router => {
 
   router.put("/brainrot/:id", async (req: Request, res: Response) => {
     try {
-      const { id } = req.params;
+      const id = parseInt(req.params.id, 10);
       const { name, baseHP, baseAttack } = req.body;
 
       if (!name || baseHP === undefined || baseAttack === undefined) {
@@ -74,7 +74,7 @@ export const createBrainrotRouter = (service: BrainrotService): Router => {
 
   router.delete("/brainrot/:id", async (req: Request, res: Response) => {
     try {
-      const { id } = req.params;
+      const id = parseInt(req.params.id, 10);
       const deleted = await service.delete(id);
 
       if (!deleted) {

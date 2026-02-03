@@ -1,10 +1,9 @@
 import { Pool, QueryResult } from "pg";
 import { Brainrot, BrainrotInput } from "../../domain/entities/Brainrot";
 import { BrainrotRepository } from "../../domain/repositories/BrainrotRepository";
-import { v4 as uuidv4 } from "uuid";
 
 interface BrainrotRow {
-  id: string;
+  id: number;
   name: string;
   base_hp: number;
   base_attack: number;
@@ -22,7 +21,7 @@ export class PostgresBrainrotRepository implements BrainrotRepository {
     return result.rows.map(this.mapRow);
   }
 
-  async getById(id: string): Promise<Brainrot | null> {
+  async getById(id: number): Promise<Brainrot | null> {
     const result: QueryResult<BrainrotRow> = await this.pool.query(
       "SELECT * FROM brainrots WHERE id = $1",
       [id]
@@ -36,18 +35,17 @@ export class PostgresBrainrotRepository implements BrainrotRepository {
   }
 
   async create(input: BrainrotInput): Promise<Brainrot> {
-    const id = uuidv4();
     const isBoss = input.isBoss ?? false;
     const result: QueryResult<BrainrotRow> = await this.pool.query(
-      "INSERT INTO brainrots (id, name, base_hp, base_attack, is_boss) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-      [id, input.name, input.baseHP, input.baseAttack, isBoss]
+      "INSERT INTO brainrots (name, base_hp, base_attack, is_boss) VALUES ($1, $2, $3, $4) RETURNING *",
+      [input.name, input.baseHP, input.baseAttack, isBoss]
     );
 
     return this.mapRow(result.rows[0]);
   }
 
   async update(
-    id: string,
+    id: number,
     input: BrainrotInput
   ): Promise<Brainrot | null> {
     const isBoss = input.isBoss ?? false;
@@ -63,7 +61,7 @@ export class PostgresBrainrotRepository implements BrainrotRepository {
     return this.mapRow(result.rows[0]);
   }
 
-  async delete(id: string): Promise<boolean> {
+  async delete(id: number): Promise<boolean> {
     const result = await this.pool.query("DELETE FROM brainrots WHERE id = $1", [
       id,
     ]);

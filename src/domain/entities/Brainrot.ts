@@ -1,5 +1,5 @@
 export interface Brainrot {
-  id: string;
+  id: number;
   name: string;
   baseHP: number;
   baseAttack: number;

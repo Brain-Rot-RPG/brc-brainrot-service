@@ -4,18 +4,19 @@ import { Brainrot, BrainrotInput } from "../domain/entities/Brainrot";
 
 class InMemoryBrainrotRepository implements BrainrotRepository {
   private items: Brainrot[] = [];
+  private idCounter = 1;
 
   async getAll(): Promise<Brainrot[]> {
     return this.items;
   }
 
-  async getById(id: string): Promise<Brainrot | null> {
+  async getById(id: number): Promise<Brainrot | null> {
     return this.items.find((item) => item.id === id) ?? null;
   }
 
   async create(input: BrainrotInput): Promise<Brainrot> {
     const created: Brainrot = {
-      id: `id-${this.items.length + 1}`,
+      id: this.idCounter++,
       createdAt: new Date("2026-01-01T00:00:00Z"),
       ...input,
       isBoss: input.isBoss ?? false,
@@ -25,7 +26,7 @@ class InMemoryBrainrotRepository implements BrainrotRepository {
   }
 
   async update(
-    id: string,
+    id: number,
     input: BrainrotInput
   ): Promise<Brainrot | null> {
     const index = this.items.findIndex((item) => item.id === id);
@@ -42,7 +43,7 @@ class InMemoryBrainrotRepository implements BrainrotRepository {
     return updated;
   }
 
-  async delete(id: string): Promise<boolean> {
+  async delete(id: number): Promise<boolean> {
     const before = this.items.length;
     this.items = this.items.filter((item) => item.id !== id);
     return this.items.length < before;
@@ -140,7 +141,7 @@ describe("BrainrotService", () => {
     });
 
     it("returns null when brainrot does not exist", async () => {
-      const found = await service.getById("non-existent-id");
+      const found = await service.getById(999);
       expect(found).toBeNull();
     });
   });
@@ -189,7 +190,7 @@ describe("BrainrotService", () => {
     });
 
     it("returns null when updating missing brainrot", async () => {
-      const updated = await service.update("missing", {
+      const updated = await service.update(999, {
         name: "Updated",
         baseHP: 150,
         baseAttack: 30,
@@ -236,7 +237,7 @@ describe("BrainrotService", () => {
     });
 
     it("returns false when deleting non-existent brainrot", async () => {
-      const deleted = await service.delete("non-existent-id");
+      const deleted = await service.delete(999);
       expect(deleted).toBe(false);
     });
 
