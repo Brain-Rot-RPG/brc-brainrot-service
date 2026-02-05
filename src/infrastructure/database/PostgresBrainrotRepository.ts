@@ -5,6 +5,7 @@ import { BrainrotRepository } from "../../domain/repositories/BrainrotRepository
 interface BrainrotRow {
   id: number;
   name: string;
+  image: string | null;
   base_hp: number;
   base_attack: number;
   is_boss: boolean;
@@ -37,8 +38,8 @@ export class PostgresBrainrotRepository implements BrainrotRepository {
   async create(input: BrainrotInput): Promise<Brainrot> {
     const isBoss = input.isBoss ?? false;
     const result: QueryResult<BrainrotRow> = await this.pool.query(
-      "INSERT INTO brainrots (name, base_hp, base_attack, is_boss) VALUES ($1, $2, $3, $4) RETURNING *",
-      [input.name, input.baseHP, input.baseAttack, isBoss]
+      "INSERT INTO brainrots (name, image, base_hp, base_attack, is_boss) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+      [input.name, input.image ?? null, input.baseHP, input.baseAttack, isBoss]
     );
 
     return this.mapRow(result.rows[0]);
@@ -50,8 +51,8 @@ export class PostgresBrainrotRepository implements BrainrotRepository {
   ): Promise<Brainrot | null> {
     const isBoss = input.isBoss ?? false;
     const result: QueryResult<BrainrotRow> = await this.pool.query(
-      "UPDATE brainrots SET name = $2, base_hp = $3, base_attack = $4, is_boss = $5 WHERE id = $1 RETURNING *",
-      [id, input.name, input.baseHP, input.baseAttack, isBoss]
+      "UPDATE brainrots SET name = $2, image = $3, base_hp = $4, base_attack = $5, is_boss = $6 WHERE id = $1 RETURNING *",
+      [id, input.name, input.image ?? null, input.baseHP, input.baseAttack, isBoss]
     );
 
     if (result.rowCount === 0) {
@@ -72,6 +73,7 @@ export class PostgresBrainrotRepository implements BrainrotRepository {
     return {
       id: row.id,
       name: row.name,
+      image: row.image,
       baseHP: row.base_hp,
       baseAttack: row.base_attack,
       isBoss: row.is_boss,

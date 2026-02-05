@@ -33,14 +33,14 @@ export const createBrainrotRouter = (service: BrainrotService): Router => {
 
   router.post("/brainrot", async (req: Request, res: Response) => {
     try {
-      const { name, baseHP, baseAttack } = req.body;
+      const { name, image, baseHP, baseAttack } = req.body;
 
       if (!name || baseHP === undefined || baseAttack === undefined) {
         res.status(400).json({ message: "Missing required fields" });
         return;
       }
 
-      const result = await service.create({ name, baseHP, baseAttack });
+      const result = await service.create({ name, image, baseHP, baseAttack });
       res.status(201).json(result);
     } catch (error) {
       console.error(error);
@@ -51,14 +51,14 @@ export const createBrainrotRouter = (service: BrainrotService): Router => {
   router.put("/brainrot/:id", async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id, 10);
-      const { name, baseHP, baseAttack } = req.body;
+      const { name, image, baseHP, baseAttack } = req.body;
 
       if (!name || baseHP === undefined || baseAttack === undefined) {
         res.status(400).json({ message: "Missing required fields" });
         return;
       }
 
-      const result = await service.update(id, { name, baseHP, baseAttack });
+      const result = await service.update(id, { name, image, baseHP, baseAttack });
 
       if (!result) {
         res.status(404).json({ message: "Brainrot not found" });
