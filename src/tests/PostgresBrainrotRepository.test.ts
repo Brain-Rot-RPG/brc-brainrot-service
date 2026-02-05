@@ -29,6 +29,7 @@ describe("PostgresBrainrotRepository", () => {
         {
           id: 1,
           name: "Test1",
+          image: null,
           base_hp: 100,
           base_attack: 20,
           is_boss: false,
@@ -37,6 +38,7 @@ describe("PostgresBrainrotRepository", () => {
         {
           id: 2,
           name: "Test2",
+          image: "img_2",
           base_hp: 150,
           base_attack: 30,
           is_boss: true,
@@ -55,6 +57,7 @@ describe("PostgresBrainrotRepository", () => {
       expect(result[0]).toEqual({
         id: 1,
         name: "Test1",
+        image: null,
         baseHP: 100,
         baseAttack: 20,
         isBoss: false,
@@ -76,6 +79,7 @@ describe("PostgresBrainrotRepository", () => {
       const mockRow = {
         id: 1,
         name: "Test",
+        image: "img_1",
         base_hp: 100,
         base_attack: 20,
         is_boss: false,
@@ -93,6 +97,7 @@ describe("PostgresBrainrotRepository", () => {
       expect(result).toEqual({
         id: 1,
         name: "Test",
+        image: "img_1",
         baseHP: 100,
         baseAttack: 20,
         isBoss: false,
@@ -114,6 +119,7 @@ describe("PostgresBrainrotRepository", () => {
       const mockRow = {
         id: 1,
         name: "New Brainrot",
+        image: null,
         base_hp: 100,
         base_attack: 20,
         is_boss: false,
@@ -124,14 +130,15 @@ describe("PostgresBrainrotRepository", () => {
 
       const result = await repository.create({
         name: "New Brainrot",
+        image: null,
         baseHP: 100,
         baseAttack: 20,
         isBoss: false,
       });
 
       expect(mockQuery).toHaveBeenCalledWith(
-        "INSERT INTO brainrots (name, base_hp, base_attack, is_boss) VALUES ($1, $2, $3, $4) RETURNING *",
-        ["New Brainrot", 100, 20, false]
+        "INSERT INTO brainrots (name, image, base_hp, base_attack, is_boss) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+        ["New Brainrot", null, 100, 20, false]
       );
       expect(result.name).toBe("New Brainrot");
       expect(result.baseHP).toBe(100);
@@ -144,6 +151,7 @@ describe("PostgresBrainrotRepository", () => {
       const mockRow = {
         id: 1,
         name: "Updated",
+        image: "img_1",
         base_hp: 200,
         base_attack: 40,
         is_boss: true,
@@ -154,14 +162,15 @@ describe("PostgresBrainrotRepository", () => {
 
       const result = await repository.update(1, {
         name: "Updated",
+        image: "img_1",
         baseHP: 200,
         baseAttack: 40,
         isBoss: true,
       });
 
       expect(mockQuery).toHaveBeenCalledWith(
-        "UPDATE brainrots SET name = $2, base_hp = $3, base_attack = $4, is_boss = $5 WHERE id = $1 RETURNING *",
-        [1, "Updated", 200, 40, true]
+        "UPDATE brainrots SET name = $2, image = $3, base_hp = $4, base_attack = $5, is_boss = $6 WHERE id = $1 RETURNING *",
+        [1, "Updated", "img_1", 200, 40, true]
       );
       expect(result).not.toBeNull();
       expect(result?.name).toBe("Updated");
